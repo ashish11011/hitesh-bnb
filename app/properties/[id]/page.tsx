@@ -8,19 +8,38 @@ import { Reviews } from "@/components/Reviews";
 import { HostProfile } from "@/components/HostProfile";
 import { ThingsToKnow } from "@/components/ThingsToKnow";
 import { Separator } from "@/components/ui/separator";
+import { roomDetails } from "@/const/roomDetails";
+import { notFound } from "next/navigation";
 
-export default function Home() {
+export function generateStaticParams() {
+  return roomDetails.map((property) => ({
+    id: property.slug,
+  }));
+}
+
+export default async function PropertyPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const property = roomDetails.find((item) => item.slug === id);
+
+  if (!property) {
+    notFound();
+  }
+
   return (
-    <div className="min-h-screen font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen">
       <Navbar />
       
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <ImageGallery />
+        <ImageGallery property={property} />
         
         <div className="mt-8 flex flex-col lg:flex-row lg:gap-20">
           <div className="flex-1 lg:max-w-[65%]">
-            <ListingHeader />
-            <Amenities />
+            <ListingHeader property={property} />
+            <Amenities property={property} />
           </div>
           
           <div className="relative mt-8 lg:mt-0 lg:w-[35%]">
@@ -29,13 +48,13 @@ export default function Home() {
         </div>
         
         <Separator className="my-8" />
-        <Reviews />
+        <Reviews property={property} />
         
         <Separator className="my-8" />
-        <HostProfile />
+        <HostProfile property={property} />
         
         <Separator className="my-8" />
-        <ThingsToKnow />
+        <ThingsToKnow property={property} />
       </main>
       
       <Footer />

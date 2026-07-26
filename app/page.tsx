@@ -7,7 +7,7 @@ import { HostCTASection } from "@/components/HostCTASection";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen">
       <Navbar />
       
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

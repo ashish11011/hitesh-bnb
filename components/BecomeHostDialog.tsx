@@ -26,9 +26,9 @@ export function BecomeHostDialog({ children }: { children: React.ReactElement })
       <DialogTrigger render={children} />
       <DialogContent className="sm:max-w-[425px] rounded-3xl p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">List your property</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Send an enquiry</DialogTitle>
           <DialogDescription className="text-gray-600 text-[16px]">
-            Fill out this quick form and our team will get back to you.
+            Tell us about your Jaipur stay and our team will get back to you.
           </DialogDescription>
         </DialogHeader>
         
@@ -38,7 +38,7 @@ export function BecomeHostDialog({ children }: { children: React.ReactElement })
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-8 h-8"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Thank you!</h3>
-            <p className="text-gray-600">Our sales person will contact you shortly.</p>
+            <p className="text-gray-600">Our team will contact you shortly.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-6 py-4">

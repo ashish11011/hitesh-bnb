@@ -6,9 +6,17 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const paragraphs = [
+    "Use this page for booking enquiries, property questions, date checks, and stay support for our three Jaipur properties. Sharing complete details in the first message helps us respond faster.",
+    "If you already know which property you prefer, mention its name along with your check-in date, checkout date, and number of guests. If you are unsure, describe your group and we can suggest the most suitable option.",
+    "Guests planning family travel, wedding stays, tourist group stays, or work trips should mention any special needs before booking. Parking, kitchen access, room layout, accessibility questions, and arrival timing are easier to discuss in advance.",
+    "For confirmed or active stays, contact us as soon as something needs attention. Early communication gives us a better chance to help with directions, check-in coordination, amenities, maintenance, or house rule questions.",
+    "You can call, email, or submit the form below. Please provide a reachable mobile number so we can clarify details and guide you through the next step for your Jaipur stay.",
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,12 +24,20 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen font-[family-name:var(--font-geist-sans)] flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-20 w-full">
+        <div className="mb-10 text-gray-700">
+          {paragraphs.map((paragraph) => (
+            <p className="mb-5 leading-relaxed" key={paragraph}>
+              {paragraph}
+            </p>
+          ))}
+        </div>
+
         <div className="bg-white p-8 rounded-3xl shadow-sm border">
           <h1 className="text-3xl font-bold mb-2 text-gray-900">Contact Us</h1>
-          <p className="text-gray-600 mb-8">We'd love to hear from you. Please fill out this form or contact us directly.</p>
+          <p className="text-gray-600 mb-8">We&apos;d love to hear from you. Please fill out this form or contact us directly.</p>
           
           <div className="mb-8 flex flex-col sm:flex-row gap-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
             <div className="flex-1 flex items-center gap-3">
@@ -68,7 +84,7 @@ export default function ContactPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="message" className="text-gray-700 font-semibold">Message</Label>
-                <textarea 
+                <Textarea 
                   id="message" 
                   required 
                   placeholder="How can we help you?" 

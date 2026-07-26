@@ -1,6 +1,9 @@
-import { Clock, Info, ShieldAlert } from "lucide-react";
+import { Info, ShieldAlert } from "lucide-react";
+import type { RoomDetails } from "@/const/roomDetails";
 
-export function ThingsToKnow() {
+export function ThingsToKnow({ property }: { property: RoomDetails }) {
+  const houseRules = "houseRules" in property ? property.houseRules : undefined;
+
   return (
     <div className="py-8">
       <h2 className="text-2xl font-semibold mb-6">Things to know</h2>
@@ -14,8 +17,7 @@ export function ThingsToKnow() {
           <p className="mb-2 text-gray-700">
             Add your trip dates to get the cancellation details for this stay.
           </p>
-          <button className="font-semibold underline mt-1">Add dates</button>
-        </div>
+         </div>
         
         <div>
           <h3 className="font-semibold mb-4 text-gray-900 flex items-center gap-2">
@@ -23,12 +25,12 @@ export function ThingsToKnow() {
             House rules
           </h3>
           <ul className="space-y-2 text-gray-700 mb-2">
-            <li>Check-in after 12:00</li>
-            <li>Checkout before 11:00</li>
-            <li>14 guests maximum</li>
+            <li>Check-in {houseRules?.checkIn ?? "after 12:00"}</li>
+            <li>Checkout {houseRules?.checkout ?? "before 11:00"}</li>
+            <li>{houseRules?.guestsMaximum ?? property.stats.guests} guests maximum</li>
+            {houseRules?.partiesAllowed === false ? <li>No parties or loud music</li> : null}
           </ul>
-          <button className="font-semibold underline mt-1">Learn more</button>
-        </div>
+         </div>
         
         <div>
           <h3 className="font-semibold mb-4 text-gray-900 flex items-center gap-2">
@@ -40,8 +42,7 @@ export function ThingsToKnow() {
             <li>Smoke alarm not reported</li>
             <li>Exterior security cameras on property</li>
           </ul>
-          <button className="font-semibold underline mt-1">Learn more</button>
-        </div>
+         </div>
       </div>
     </div>
   );
