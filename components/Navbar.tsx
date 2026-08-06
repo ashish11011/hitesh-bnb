@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { BecomeHostDialog } from "@/components/BecomeHostDialog";
+import Image from "next/image";
 
 export function Navbar() {
   return (
@@ -16,24 +17,15 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-1 text-primary">
           {/* Using a simple logo representation for now */}
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 32 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-rose-600"
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M16 1C8.26801 1 2 7.26801 2 15C2 22.732 8.26801 29 16 29C23.732 29 30 22.732 30 15C30 7.26801 23.732 1 16 1ZM16 5C10.4772 5 6 9.47715 6 15C6 20.5228 10.4772 25 16 25C21.5228 25 26 20.5228 26 15C26 9.47715 21.5228 5 16 5Z"
-              fill="currentColor"
-            />
-          </svg>
-          <span className="hidden text-xl font-bold tracking-tight text-rose-600 lg:block">
-            Hitesh Stays
-          </span>
+          <Image
+            src={
+              "https://codeframe-ashish-harshit.s3.ap-south-1.amazonaws.com/hitesh/7-heven-logo.png"
+            }
+            width={500}
+            height={500}
+            className=" size-16 object-contain"
+            alt="logo"
+          />
         </Link>
 
         {/* Search Bar */}
