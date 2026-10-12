@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { submitNotification } from "@/lib/submit-notification";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,14 +16,40 @@ import {
 
 export function BecomeHostDialog({ children }: { children: React.ReactElement }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    if (isPending) return;
+    const data = new FormData(e.currentTarget);
+    setIsPending(true);
+    setError("");
+    try {
+      await submitNotification({
+        type: "enquiry",
+        name: String(data.get("name") || ""),
+        phone: String(data.get("phone") || ""),
+        email: String(data.get("email") || ""),
+      });
+      setIsSubmitted(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We couldn't send your request. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
-    <Dialog onOpenChange={(open) => { if(!open) setIsSubmitted(false); }}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (isPending) return;
+      setIsOpen(open);
+      if (!open) {
+        setIsSubmitted(false);
+        setError("");
+      }
+    }}>
       <DialogTrigger render={children} />
       <DialogContent className="sm:max-w-[425px] rounded-3xl p-8">
         <DialogHeader>
@@ -44,18 +71,19 @@ export function BecomeHostDialog({ children }: { children: React.ReactElement })
           <form onSubmit={handleSubmit} className="grid gap-6 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name" className="text-gray-700 font-semibold">Name</Label>
-              <Input id="name" required placeholder="John Doe" className="h-12 rounded-xl" />
+              <Input id="name" name="name" maxLength={120} required placeholder="John Doe" className="h-12 rounded-xl" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="phone" className="text-gray-700 font-semibold">Phone Number</Label>
-              <Input id="phone" type="tel" required placeholder="+91 98765 43210" className="h-12 rounded-xl" />
+              <Input id="phone" name="phone" type="tel" maxLength={30} required placeholder="+91 98765 43210" className="h-12 rounded-xl" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email" className="text-gray-700 font-semibold">Email (Optional)</Label>
-              <Input id="email" type="email" placeholder="john@example.com" className="h-12 rounded-xl" />
+              <Input id="email" name="email" type="email" maxLength={254} placeholder="john@example.com" className="h-12 rounded-xl" />
             </div>
-            <Button type="submit" className="w-full h-12 bg-gray-900 text-white rounded-xl font-semibold text-[16px] mt-2">
-              Submit Request
+            {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+            <Button type="submit" disabled={isPending} className="w-full h-12 bg-gray-900 text-white rounded-xl font-semibold text-[16px] mt-2">
+              {isPending ? "Sending…" : "Submit Request"}
             </Button>
           </form>
         )}

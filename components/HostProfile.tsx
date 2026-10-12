@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BadgeCheck, BriefcaseBusiness, Baby } from "lucide-react";
 import type { RoomDetails } from "@/const/roomDetails";
@@ -68,9 +69,9 @@ export function HostProfile({ property }: { property: RoomDetails }) {
           <div className="mb-6">
             <p className="mb-2 text-gray-800">Response rate: {responseRate}</p>
             <p className="mb-4 text-gray-800">Responds {responseTime}</p>
-            <Button className="bg-gray-900 text-white hover:bg-gray-800 font-semibold px-6 py-6 text-[16px]">
+            <Link href="/contact" className={buttonVariants({ className: "bg-gray-900 text-white hover:bg-gray-800 font-semibold px-6 py-6 text-[16px]" })}>
               Message manager
-            </Button>
+            </Link>
           </div>
           
            

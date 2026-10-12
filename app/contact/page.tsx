@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { submitNotification } from "@/lib/submit-notification";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
   const paragraphs = [
     "Use this page for booking enquiries, property questions, date checks, and stay support for our three Jaipur properties. Sharing complete details in the first message helps us respond faster.",
     "If you already know which property you prefer, mention its name along with your check-in date, checkout date, and number of guests. If you are unsure, describe your group and we can suggest the most suitable option.",
@@ -18,9 +21,26 @@ export default function ContactPage() {
     "You can call, email, or submit the form below. Please provide a reachable mobile number so we can clarify details and guide you through the next step for your Jaipur stay.",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    if (isPending) return;
+    const data = new FormData(e.currentTarget);
+    setIsPending(true);
+    setError("");
+    try {
+      await submitNotification({
+        type: "contact",
+        name: String(data.get("name") || ""),
+        phone: String(data.get("phone") || ""),
+        email: String(data.get("email") || ""),
+        message: String(data.get("message") || ""),
+      });
+      setIsSubmitted(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We couldn't send your message. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -72,27 +92,30 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="grid gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="name" className="text-gray-700 font-semibold">Name</Label>
-                <Input id="name" required placeholder="John Doe" className="h-12 rounded-xl" />
+                <Input id="name" name="name" maxLength={120} required placeholder="John Doe" className="h-12 rounded-xl" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="phone" className="text-gray-700 font-semibold">Phone Number</Label>
-                <Input id="phone" type="tel" required placeholder="+91 98765 43210" className="h-12 rounded-xl" />
+                <Input id="phone" name="phone" type="tel" maxLength={30} required placeholder="+91 98765 43210" className="h-12 rounded-xl" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-gray-700 font-semibold">Email (Optional)</Label>
-                <Input id="email" type="email" placeholder="john@example.com" className="h-12 rounded-xl" />
+                <Input id="email" name="email" type="email" maxLength={254} placeholder="john@example.com" className="h-12 rounded-xl" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="message" className="text-gray-700 font-semibold">Message</Label>
                 <Textarea 
                   id="message" 
+                  name="message"
+                  maxLength={5000}
                   required 
                   placeholder="How can we help you?" 
                   className="min-h-[120px] rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" 
                 />
               </div>
-              <Button type="submit" className="w-full h-12 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-[16px] mt-4 transition transform hover:scale-[1.02]">
-                Send Message
+              {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+              <Button type="submit" disabled={isPending} className="w-full h-12 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-[16px] mt-4 transition transform hover:scale-[1.02]">
+                {isPending ? "Sending…" : "Send Message"}
               </Button>
             </form>
           )}

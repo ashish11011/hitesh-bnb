@@ -43,7 +43,7 @@ export default async function PropertyPage({
           </div>
           
           <div className="relative mt-8 lg:mt-0 lg:w-[35%]">
-            <BookingWidget />
+            <BookingWidget propertySlug={property.slug} />
           </div>
         </div>
         

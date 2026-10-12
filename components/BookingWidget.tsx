@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { submitNotification } from "@/lib/submit-notification";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function BookingWidget() {
+export function BookingWidget({ propertySlug }: { propertySlug: string }) {
   const [checkIn, setCheckIn] = useState("");
   const [checkout, setCheckout] = useState("");
   const [guests, setGuests] = useState("2-4 guests");
@@ -28,23 +29,35 @@ export function BookingWidget() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    console.log("Availability request", {
-      checkIn,
-      checkout,
-      guests,
-      name,
-      email,
-      mobile,
-    });
-
-    setIsContactOpen(false);
-    setName("");
-    setEmail("");
-    setMobile("");
+    if (isPending) return;
+    setIsPending(true);
+    setError("");
+    try {
+      await submitNotification({
+        type: "availability",
+        propertySlug,
+        checkIn,
+        checkout,
+        guests,
+        name,
+        email,
+        phone: mobile,
+      });
+      setIsSubmitted(true);
+      setName("");
+      setEmail("");
+      setMobile("");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We couldn't send your request. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -111,24 +124,39 @@ export function BookingWidget() {
 
         <Button
           type="button"
-          onClick={() => setIsContactOpen(true)}
+          onClick={() => {
+            setError("");
+            if (!checkIn || !checkout || checkout <= checkIn) {
+              setError("Please select check-in and checkout dates. Checkout must be after check-in.");
+              return;
+            }
+            setIsSubmitted(false);
+            setIsContactOpen(true);
+          }}
           className="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-lg py-6 text-lg font-semibold"
         >
           Check availability
         </Button>
 
-        <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        {error && !isContactOpen && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
+
+        <Dialog open={isContactOpen} onOpenChange={(open) => {
+          if (!isPending) {
+            setIsContactOpen(open);
+            setError("");
+          }
+        }}>
           <DialogContent className="sm:max-w-[425px] rounded-3xl p-8">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">
-                Enter your details
+                {isSubmitted ? "Request sent" : "Enter your details"}
               </DialogTitle>
               <DialogDescription className="text-gray-600 text-[16px]">
-                We will use this to check availability for your stay.
+                {isSubmitted ? "Our team will contact you about availability for your stay." : "We will use this to check availability for your stay."}
               </DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleContactSubmit} className="grid gap-5 py-4">
+            {!isSubmitted && <form onSubmit={handleContactSubmit} className="grid gap-5 py-4">
               <div className="grid gap-2">
                 <Label
                   htmlFor="availability-name"
@@ -138,6 +166,7 @@ export function BookingWidget() {
                 </Label>
                 <Input
                   id="availability-name"
+                  maxLength={120}
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   required
@@ -154,6 +183,7 @@ export function BookingWidget() {
                 </Label>
                 <Input
                   id="availability-mobile"
+                  maxLength={30}
                   type="tel"
                   value={mobile}
                   onChange={(event) => setMobile(event.target.value)}
@@ -171,6 +201,7 @@ export function BookingWidget() {
                 </Label>
                 <Input
                   id="availability-email"
+                  maxLength={254}
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -179,13 +210,15 @@ export function BookingWidget() {
                   className="h-12 rounded-xl"
                 />
               </div>
+              {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
               <Button
                 type="submit"
+                disabled={isPending}
                 className="w-full h-12 bg-gray-900 text-white rounded-xl font-semibold text-[16px] mt-2"
               >
-                Submit
+                {isPending ? "Sending…" : "Submit"}
               </Button>
-            </form>
+            </form>}
           </DialogContent>
         </Dialog>
       </Card>
